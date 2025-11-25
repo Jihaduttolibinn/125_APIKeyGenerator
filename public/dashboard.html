@@ -1,0 +1,82 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <h1>Dashboard Admin: Daftar User & API Key</h1>
+
+  <a href="user-register.html">➕ Daftar User Baru</a>
+
+  <table>
+    <thead>
+      <tr>
+        <th>ID User</th>
+        <th>Nama Depan</th>
+        <th>Nama Belakang</th>
+        <th>Email</th>
+        <th>API Key</th>
+        <th>Status Key</th>
+        <th>Aksi</th> <!-- Tambahan kolom Aksi -->
+      </tr>
+    </thead>
+    <tbody id="dataTable">
+    </tbody>
+  </table>
+
+  <script>
+    async function loadData() {
+      const res = await fetch('/dashboard-data');
+      const data = await res.json();
+
+      const tbody = document.getElementById('dataTable');
+      tbody.innerHTML = ""; // Bersihkan dulu biar tidak double
+
+      data.forEach(row => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${row.user_id}</td>
+          <td>${row.first_name}</td>
+          <td>${row.last_name}</td>
+          <td>${row.email}</td>
+          <td>${row.api_key}</td>
+          <td>Aktif</td>
+          <td>
+            <button onclick="deleteUser(${row.user_id})"
+              style="background:red;color:white;border:none;padding:6px 12px;
+              border-radius:4px;cursor:pointer;">
+              Delete
+            </button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    async function deleteUser(id) {
+      if (!confirm("Yakin ingin menghapus user ini?")) return;
+
+      const res = await fetch(`/delete-user/${id}`, {
+        method: "DELETE"
+      });
+
+      const result = await res.json();
+
+      if (result.success) {
+        alert("User berhasil dihapus!");
+        loadData(); // reload tabel
+      } else {
+        alert("Gagal menghapus user.");
+      }
+    }
+
+    loadData();
+  </script>
+
+</body>
+</html>
